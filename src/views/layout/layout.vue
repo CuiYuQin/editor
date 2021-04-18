@@ -4,7 +4,16 @@
     <el-container class="outContainer">
       <!-- 侧边栏 -->
       <transition name="slide-fade">
-        <el-aside v-show="ifShowAside" style="width: 18%">文件 | 大纲</el-aside>
+        <el-aside v-show="ifShowAside" style="width: 18%">
+
+          <el-divider style="top:30%"></el-divider>
+          <el-tabs v-model="activeName" @tab-click="handleClick" style="text-align: center;  margin: 0px;
+  padding: 0px;">
+            <el-tab-pane label="用户管理" name="first">用户管理</el-tab-pane>
+            <el-tab-pane label="配置管理" name="second">配置管理</el-tab-pane>
+          </el-tabs>
+
+        </el-aside>
       </transition>
 
       <el-container>
@@ -12,11 +21,30 @@
         <el-main>
           <div id="editor">
             <!-- 编辑器 -->
-            <mavon-editor style="height: 100%"></mavon-editor>
+            <mavon-editor
+              style="height: 100%"
+              v-model="value"
+              :toolbarsBackground="'#23292f'"
+              :previewBackground="'#f8f6f1ed'"
+              :subfield="true"
+              :placeholder="'请开始你的创作之旅...'"
+              :toolbars="toolbars"
+              :editorBackground="'#2c2d32'"
+            ></mavon-editor>
             <!-- 侧边栏收缩按钮 -->
-            <div class="footer">
-              <i v-show="ifShowAside" class="el-icon-arrow-left" @click="showAside"> </i>
-              <i v-show="!ifShowAside" class="el-icon-arrow-right" @click="showAside"> </i>
+            <div class="footer" style="color:#ffffff">
+              <i
+                v-show="ifShowAside"
+                class="el-icon-arrow-left"
+                @click="showAside"
+              >
+              </i>
+              <i
+                v-show="!ifShowAside"
+                class="el-icon-arrow-right"
+                @click="showAside"
+              >
+              </i>
             </div>
           </div>
         </el-main>
@@ -41,13 +69,59 @@ export default {
   },
   data: function () {
     return {
+      //侧边栏===================
       ifShowAside: true,
+      activeName: 'second',
+      //========================
+      //markdown================
+      value: ``,
+      toolbars: {
+        bold: true, // 粗体
+        italic: true, // 斜体
+        header: true, // 标题
+        underline: true, // 下划线
+        strikethrough: true, // 中划线
+        mark: true, // 标记
+        superscript: true, // 上角标
+        subscript: true, // 下角标
+        quote: true, // 引用
+        ol: true, // 有序列表
+        ul: true, // 无序列表
+        link: true, // 链接
+        imagelink: true, // 图片链接
+        code: true, // code
+        table: true, // 表格
+        fullscreen: false, // 全屏编辑
+        readmodel: true, // 沉浸式阅读
+        htmlcode: true, // 展示html源码
+        help: false, // 帮助
+        /* 1.3.5 */
+        undo: true, // 上一步
+        redo: true, // 下一步
+        trash: true, // 清空
+        save: true, // 保存（触发events中的save事件）
+        /* 1.4.2 */
+        navigation: true, // 导航目录
+        /* 2.1.8 */
+        alignleft: true, // 左对齐
+        aligncenter: true, // 居中
+        alignright: true, // 右对齐
+        /* 2.2.1 */
+        subfield: true, // 单双栏模式
+        preview: false, // 预览
+      },
+      //========================
     };
   },
   methods: {
+    //侧边栏=====================================================================
     showAside: function () {
       this.ifShowAside = !this.ifShowAside;
     },
+    handleClick(tab, event) {
+        console.log(tab, event);
+    }
+    //==========================================================================
   },
 };
 </script>
@@ -90,7 +164,7 @@ export default {
 }
 /* 侧边栏容器 */
 .el-aside {
-  background-color: #d3dce6;
+  /* background-color: #d3dce6; */
   text-align: center;
 }
 /* 主要区域容器 */
