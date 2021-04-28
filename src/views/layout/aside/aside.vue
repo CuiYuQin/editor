@@ -24,41 +24,17 @@
     <el-tabs v-model="activeName" @tab-click="handleClick" :stretch="true">
       <!-- 文件标签页 -->
       <el-tab-pane label="文件" name="first">
-        <vue-scroll :ops="ops">
-          文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-          <br />文件========================================
-        </vue-scroll>
+        <v-FM ref="FMRef"></v-FM>
       </el-tab-pane>
 
       <!-- 大纲标签页 -->
-      <el-tab-pane label="大纲" name="second"
-        ><vue-scroll :ops="ops"> ooooo </vue-scroll></el-tab-pane
-      >
+      <el-tab-pane label="大纲" name="second">
+        <vue-scroll :ops="ops">
+          <div
+            ref="navigationContent"
+            class="v-note-navigation-content"
+          ></div></vue-scroll>
+        </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -67,10 +43,15 @@
 import vuescroll from "vuescroll"; //  引入vuescroll
 import "vuescroll/dist/vuescroll.css"; //  引入vuescroll样式
 
+import FM from "./FM.vue";
+
 export default {
   name: "asideContainer",
   components: {
     "vue-scroll": vuescroll,
+    "v-FM": FM,
+  },
+  props:{
   },
   data: function () {
     return {
@@ -106,7 +87,7 @@ export default {
           opacity: 0,
           size: "6px",
           specifyBorderRadius: false, //是否指定轨道的 borderRadius， 如果不那么将会自动设置
-          gutterOfEnds: null,
+          gutterOfEnds: "0px",
           gutterOfSide: "0px", //轨道距 x 和 y 轴两端的距离
           keepShow: false, //是否即使 bar 不存在的情况下也保持显示
         },
@@ -132,8 +113,8 @@ export default {
       this.ifnickClick = !this.ifnickClick;
     },
     //标签页切换
-    handleClick(tab, event) {
-      console.log(tab, event);
+    handleClick() {
+      // console.log(tab, event);
     },
   },
 };
@@ -169,6 +150,7 @@ export default {
   font-weight: bold;
   display: inline-block;
   margin: 6px 15px;
+  cursor: pointer;
   padding: 1px 5px 1px 6px;
   color: rgb(236, 229, 229);
 }
@@ -184,7 +166,7 @@ export default {
   transition: all 0.3s ease;
 }
 .slide-fade-leave-active {
-  transition: all 0.3s ease;
+  transition: all .5s ease;
   /* transition:left .3s ease-in-out; */
 }
 .slide-fade-enter, .slide-fade-leave-to
@@ -247,4 +229,9 @@ export default {
   height: 2px !important;
   background-color: #ffffff !important;
 }
+</style>
+
+<style lang="stylus" rel="stylesheet/stylus">
+
+@import "aside.styl";
 </style>
