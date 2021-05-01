@@ -18,7 +18,10 @@ func main() {
 
 	mux := http.NewServeMux()
 	//路由
+	//tree
 	mux.HandleFunc("/gettree", controllers.GetTree)
+	mux.HandleFunc("/inserttree", controllers.InsertTree)
+	mux.HandleFunc("/updatetree", controllers.UpdateTree)
 
 	//端口
 	fmt.Println("Web服务器启动...端口:7000")

@@ -5,7 +5,7 @@
         <div><i class="el-icon-s-management firstIcon"></i>我的文档</div>
       </div>
       <div class="el-collapse-item-wrap" :style="{display:isActionisFile}">
-        <vue-scroll :ops="ops">
+        <vue-scroll :ops="$store.state.vueScrolloOps">
           <el-tree ref="tree" :props="defaultProps" :data="data" node-key="id" @node-drag-start="handleDragStart"
             :default-expanded-keys="expandedkeys" @node-drag-enter="handleDragEnter" @node-drag-leave="handleDragLeave"
             @node-drag-over="handleDragOver" @node-drag-end="handleDragEnd" @node-drop="handleDrop" draggable
@@ -43,9 +43,7 @@
             </div>
             <!-- 自定义节点内容 -->
           </el-tree>
-
         </vue-scroll>
-
       </div>
     </div>
     <div class="el-collapse-item" @click="clickCollapseItem2">
@@ -97,6 +95,8 @@
   import vuescroll from "vuescroll"; //  引入vuescroll
   import "vuescroll/dist/vuescroll.css"; //  引入vuescroll样式
 
+  import axios from 'axios';
+
   export default {
     name: "FM",
     components: { "vue-scroll": vuescroll, },
@@ -120,95 +120,26 @@
         //默认展开的节点
         expandedkeys: [],
         //文件树数据结构
-        data: [{
-          id: 1,
-          label: '一级 1',
-          type: false,
-          url: `# markdown-it-vue
-
-## Image size and Viewer
-
-![gvf=x50](http://www.aqcoder.com/gvf-project.png )`,
-        }, {
-          id: 2,
-          label: '一级 2',
-          type: true,
-          url: `folk`,
-          children: [{
-            id: 4,
-            label: '二级 2-1',
-            type: false,
-            url: `# markdown-it-vue
-
-## Image size and Viewer
-
-![gvf=x50](http://www.aqcoder.com/gvf-project.png )`,
-          }, {
-            id: 5,
-            type: false,
-            url: `# markdown-it-vue
-
-## Image size and Viewer
-
-![gvf=x50](http://www.aqcoder.com/gvf-project.png )`,
-            label: '二级 2-2'
-          }]
-        }, {
-          id: 3,
-          type: false,
-          url: `# markdown-it-vue
-
-## Image size and Viewer
-
-![gvf=x50](http://www.aqcoder.com/gvf-project.png )`,
-          label: '一级 3',
-        }
-        ],
+        data: [],
+        object: {
+          // userId:"",
+          // userName:this.$store.state.userName,
+          // tree:this.data,
+          // deleteTree:[],
+          // createTime:""
+        },
+        // data: [{
+        //   id: 1,
+        //   label: '我的文档',
+        //   type: true,
+        //   url: `# markdown`,
+        //   children: []
+        // }
+        // ],
         //
         defaultProps: {
           children: 'children',
           label: 'label'
-        },
-        ops: {
-          vuescroll: {
-            mode: "native", //选择一个模式, native 或者 slide(pc&app)
-            sizeStrategy: "percent", //如果父容器不是固定高度，请设置为 number , 否则保持默认的percent即可
-            detectResize: true, //是否检测内容尺寸发生变化
-          },
-          scrollPanel: {
-            initialScrollY: false, //只要组件mounted之后自动滚动的距离。 例如 100 or 10%
-            initialScrollX: false,
-            scrollingX: false, //是否启用 x 或者 y 方向上的滚动
-            scrollingY: true,
-            speed: 300, //多长时间内完成一次滚动。 数值越小滚动的速度越快
-            easing: undefined, //滚动动画 参数通animation
-            padding: true,
-            // maxHeigth:"500",
-            verticalNativeBarPos: "right", //原生滚动条的位置
-          },
-          rail: {
-            //轨道
-            background: "#c3c3c3", //轨道的背景色
-            opacity: 0,
-            size: "6px",
-            specifyBorderRadius: false, //是否指定轨道的 borderRadius， 如果不那么将会自动设置
-            gutterOfEnds: "0px",
-            gutterOfSide: "0px", //轨道距 x 和 y 轴两端的距离
-            keepShow: false, //是否即使 bar 不存在的情况下也保持显示
-          },
-          bar: {
-            showDelay: 1000, //在鼠标离开容器后多长时间隐藏滚动条
-            onlyShowBarOnScroll: false, //当页面滚动时显示
-            keepShow: false, //是否一直显示
-            background: "#c3c3c3",
-            opacity: 1,
-            hoverStyle: false,
-            specifyBorderRadius: false,
-            minSize: false,
-            size: "6px",
-            disable: false, //是否禁用滚动条
-          }, // 在这里设置全局默认配置
-          name: "vuescroll", // 在这里自定义组件名字，默认是vueScroll
         },
       };
     },
@@ -216,15 +147,71 @@
       //是否点击我的文档栏，以显示文件树
       isActionisFile: function () { return this.activeName == '1' ? '' : 'none'; }
     },
-    created: function () {
-      this.$store.commit("setNodeList", this.data);
-      // this.$store.commit("setNodeTree", nodeTree);
-      this.$store.commit("setIsShowMain", false);
+    watch: {
+      object: {
+        handler() {
+          //保存数据
+          axios.post('/api/updatetree',this.object)
+          .then(response => {
+            // this.data = JSON.parse(response.data.object.tree)
+            console.log(response.data.status);
+          }).catch(err => {
+            console.log(err);
+          })
+        },
+        // immediate: true,
+        deep: true
+      }
     },
+    created: function () {
+
+      //设置数据
+      // axios.post('/api/inserttree', {
+      //   userName: "让我再睡5分钟",
+      //   tree: [{
+      //     id: 1,
+      //     label: '我的文档',
+      //     type: true,
+      //     url: `# markdown`,
+      //     children: []
+      //   }
+      //   ],
+      //   deleteTree:[{
+      //     id: 99,
+      //     label: 'delete',
+      //     type: true,
+      //     url: `# markdown`,
+      //     children: []
+      //   }
+      //   ]
+      // }).then(response => {
+      //   console.log(response);
+      // }).catch(err => {
+      //   console.log(err);
+      // })
+      // .finally(() => console.log("load......"))
+
+      //请求数据
+      axios.post('/api/gettree', {
+        userName: this.$store.state.userName
+      }).then(response => {
+        this.object = response.data.object;
+        this.object.tree = JSON.parse(response.data.object.tree);
+        this.object.deleteTree = JSON.parse(response.data.object.deleteTree);
+        console.log("this.object",this.object);
+        this.data = this.object.tree;
+        this.$store.commit("setNodeList", this.data);
+        this.$store.commit("setIsShowMain", false);
+      }).catch(err => {
+        console.log(err);
+      })
+      // .finally(() => console.log("load......"))
+    },
+
     methods: {
       // 一级菜单
-      clickCollapseItem1() { 
-        this.activeName = this.activeName == '1' ? '' : '1'; 
+      clickCollapseItem1() {
+        this.activeName = this.activeName == '1' ? '' : '1';
         this.clickTitle();
       },
       clickCollapseItem2() { this.activeName = '2'; },
@@ -249,13 +236,15 @@
       },
       allowDrop(draggingNode, dropNode, type) {
         if (dropNode.data.type) {
-          if (type == 'inner') {
-            return true;
-          } else {
-            return false;
-          }
+          // if (type == 'inner') {
+          this.handleNodeClick(dropNode.data);
+          return true;
+          // } else {
+          //   return false;
+          // }
         } else {
           if (type != 'inner') {
+            this.handleNodeClick(draggingNode.data);
             return true;
           }
           return false;
@@ -299,9 +288,6 @@
       },
 
       handleNodeExpand() { },
-      //树形控件
-
-      //二级菜单
 
       //点击二级菜单
       clickNode(id) { this.treeData = this.$refs.tree.getNode(id).data; },
@@ -336,7 +322,7 @@
         this.dialog.dialogAddFold = false;
         //new 一个孩子
         const newChild = {
-          id: this.id++,
+          id: new Date().getTime(),
           label: this.dialog.dialogInput,
           type: true,
           url: '# ' + this.dialog.dialogInput,
@@ -356,7 +342,7 @@
       addfile() {
         //new 一个孩子
         const newChild = {
-          id: this.id++,
+          id: new Date().getTime(),
           label: 'Untitled',
           type: false,
           url: '# 无标题',

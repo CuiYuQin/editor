@@ -8,8 +8,8 @@ import (
 
 //结构化返回信息
 type ResponseData struct {
-	Objects interface{} `json:"objects"` //主要数据内容
-	ErrMsg  string      `json:"errMsg"`  //提示信息内容
+	Object interface{} `json:"object"` //主要数据内容
+	Message  string      `json:"message"`  //提示信息内容
 	Status  int        `json:"status"`  //状态码
 }
 
