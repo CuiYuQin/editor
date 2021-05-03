@@ -151,13 +151,13 @@
       object: {
         handler() {
           //保存数据
-          axios.post('/api/updatetree',this.object)
-          .then(response => {
-            // this.data = JSON.parse(response.data.object.tree)
-            console.log(response.data.status);
-          }).catch(err => {
-            console.log(err);
-          })
+          axios.post('/api/updatetree', this.object)
+            .then(response => {
+              // this.data = JSON.parse(response.data.object.tree)
+              console.log(response.data.status);
+            }).catch(err => {
+              console.log(err);
+            })
         },
         // immediate: true,
         deep: true
@@ -198,7 +198,7 @@
         this.object = response.data.object;
         this.object.tree = JSON.parse(response.data.object.tree);
         this.object.deleteTree = JSON.parse(response.data.object.deleteTree);
-        console.log("this.object",this.object);
+        console.log("this.object", this.object);
         this.data = this.object.tree;
         this.$store.commit("setNodeList", this.data);
         this.$store.commit("setIsShowMain", false);
@@ -284,7 +284,7 @@
         }
 
         this.$store.commit("setIsShowMain", true);
-        this.$store.commit("setValue", data.label);
+        this.$store.commit("setValue", data.url);
       },
 
       handleNodeExpand() { },
@@ -340,22 +340,34 @@
       },
       //新建文档
       addfile() {
-        //new 一个孩子
-        const newChild = {
-          id: new Date().getTime(),
-          label: 'Untitled',
-          type: false,
-          url: '# 无标题',
-          children: []
-        };
-        //如果本节点数据对象没有children这个属性，就要加入vue数据监听，要不不会响应式
-        if (!this.treeData.children) {
-          this.$set(this.treeData, 'children', []);
-        }
-        //把孩子节点加入孩子属性
-        this.treeData.children.push(newChild);
-        this.$nextTick(function () {
-          this.handleNodeClick(newChild);
+        // 设置数据
+        let ebookId = "";
+        axios.post('/api/insertebook', {
+          title: "Untitled",
+          author: this.$store.state.userName,
+          content: "## 请仔细阅读帮助文档",
+          contentHtml: ""
+        }).then(response => {
+          ebookId = response.data.object.ebookId;
+          //new 一个孩子
+          const newChild = {
+            id: new Date().getTime(),
+            label: 'Untitled',
+            type: false,
+            url: ebookId,
+            children: []
+          };
+          //如果本节点数据对象没有children这个属性，就要加入vue数据监听，要不不会响应式
+          if (!this.treeData.children) {
+            this.$set(this.treeData, 'children', []);
+          }
+          //把孩子节点加入孩子属性
+          this.treeData.children.push(newChild);
+          this.$nextTick(function () {
+            this.handleNodeClick(newChild);
+          })
+        }).catch(err => {
+          console.log(err);
         })
       },
       //重命名

@@ -10,7 +10,7 @@ import (
 
 func GetTree(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("请求:", r.Method)
+	fmt.Println("GetTree请求:", r.Method)
 	common.SetHeader(w)
 
 	//请求的数据
@@ -23,7 +23,7 @@ func GetTree(w http.ResponseWriter, r *http.Request) {
 }
 
 func InsertTree(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("请求:", r.Method)
+	fmt.Println("InsertTree请求:", r.Method)
 	common.SetHeader(w)
 
 	//请求的数据
@@ -43,7 +43,7 @@ func InsertTree(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateTree(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("请求:", r.Method)
+	fmt.Println("UpdateTree请求:", r.Method)
 	common.SetHeader(w)
 
 	//请求的数据

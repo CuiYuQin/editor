@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    userName: "让我再睡5分钟",//用户名
+    userName: "starSea",//用户名
     value: "",//markdown编辑文本
     isShowMain: false,
     nodeTree: [],

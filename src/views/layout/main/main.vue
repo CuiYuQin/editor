@@ -22,6 +22,8 @@
   import { mavonEditor } from "mavon-editor";
   import "mavon-editor/dist/css/index.css";
 
+  import axios from 'axios';
+
   export default {
     name: "mainContainer",
     components: {
@@ -32,16 +34,12 @@
       showAside: {
         type: Function,
       },
-      // value: {
-      //   type: String,
-      //   default: ''
-      // }
     },
     data: function () {
       return {
         showAsideIcon: "el-icon-arrow-left", //侧边栏显示隐藏图标样式
-
         d_value: "", //编辑文字
+        object: {},
         //编辑器工具栏
         toolbars: {
           bold: true, // 粗体
@@ -88,9 +86,34 @@
     watch: {
       value: {
         handler(newValue) {
-          this.d_value = newValue;
+          //请求数据
+          axios.post('/api/getebook', {
+            ebookId: newValue
+          }).then(response => {
+            console.log("response", response);
+            this.object = response.data.object;
+            this.d_value = this.object.content;
+          }).catch(err => {
+            console.log(err);
+          })
         },
-        immediate: true
+        immediate: true,
+        // deep: true
+      },
+      d_value: {
+        handler(newValue) {
+          // //保存数据
+          this.object.content = newValue;
+          axios.post('/api/updateebook', this.object)
+            .then(response => {
+              // this.data = JSON.parse(response.data.object.tree)
+              console.log(response.data.status);
+            }).catch(err => {
+              console.log(err);
+            })
+        },
+        // immediate: true,
+        deep: true
       }
     },
     methods: {
