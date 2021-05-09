@@ -19,12 +19,21 @@ func Ggb(w http.ResponseWriter, r *http.Request) {
 	//返回的数据体
 	responseData := common.ResponseData{}
 
+	ggbHtml, err := os.OpenFile(ggbName.(string), os.O_WRONLY|os.O_CREATE|os.O_EXCL, os.ModeAppend|os.ModePerm)
+	if err != nil {
+		responseData.Status = 202
+		responseData.Message = "已存在这个ggb"
+		res, _ := json.Marshal(responseData)
+		w.Write(res)
+	}
+	defer ggbHtml.Close()
+
 	html := `<html>
 
 	<head>
 		<meta name=viewport content="width=device-width,initial-scale=1">
 		<meta charset="utf-8" />
-		<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+		<script src="./GeoGebra/deployggb.js"></script>
 	</head>
 	
 	<body>
@@ -48,21 +57,18 @@ func Ggb(w http.ResponseWriter, r *http.Request) {
 			ggbBase64: ggb,
 		};
 		var applet = new GGBApplet(parameters, "5.0");
+		applet.setHTML5Codebase('./GeoGebra/HTML5/5.0/web3d/');
 		window.onload = function () {
 			applet.inject("ggbApplet");
 		};
 	</script>
 	
 	</html>`
-
-	fmt.Println(html)
-
-	ggbHtml, err := os.OpenFile(ggbName.(string), os.O_CREATE|os.O_RDWR|os.O_APPEND|os.O_TRUNC, os.ModeAppend|os.ModePerm)
-	common.CheckError(err)
-	defer ggbHtml.Close()
+	
 	ggbHtml.WriteString(html)
 
 	responseData.Status = 201
+	responseData.Message = "ggb以生成"
 	res, _ := json.Marshal(responseData)
 	w.Write(res)
 }

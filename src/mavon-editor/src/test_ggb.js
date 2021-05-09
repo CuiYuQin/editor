@@ -4,7 +4,8 @@ export default (md) => {
     const token = tokens[idx]
     if (token.info === 'ggb') {
         const code = token.content.trim()
-        return `<div id="ggbApplet"></div><div id="ggbid">${code}</div>`
+        // return `<div id="ggbApplet" class="ggbApplet"></div><div id="ggbid" class="ggbid">${code}</div>`
+        return `<div id="ggbid" class="ggbid">${code}</div>`
     }
     return temp(tokens, idx, options, env, slf)
   }

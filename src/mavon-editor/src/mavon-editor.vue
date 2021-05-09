@@ -401,6 +401,30 @@
         // 没有外部文件要来接管markdown样式，可以更改markdown样式。
         $vm.codeStyleChange($vm.codeStyle, true);
       }
+
+      // this.$nextTick(function () {
+      //   //renser geogebra
+      //   if (document.getElementById("ggbid")) {
+      //     var ggb = document.getElementById("ggbid").innerText;
+      //     document.getElementById("ggbid").style.display = "none";
+      //     var parameters = {
+      //       width: 850,
+      //       height: 420,
+      //       enableRightClick: false,
+      //       showToolBar: true,
+      //       showAlgebraInput: true,
+      //       showMenuBar: true,
+      //       showToolBar: true,
+      //       borderColor: "white",
+      //       ggbBase64: ggb,
+      //     };
+      //     var applet = new GGBApplet(parameters, "5.0");
+      //     window.onload = function () {
+      //       applet.inject("ggbApplet");
+      //     };
+      //   }
+      // });
+
     },
     beforeDestroy() {
       document.body.removeChild(this.$refs.help);
@@ -752,7 +776,7 @@
           window.clearTimeout($vm.currentTimeout);
           $vm.currentTimeout = setTimeout(() => {
             $vm.saveHistory();
-          }, 1500);
+          }, 800);
         });
         //=======================================================================================================================================================================
         $vm.$nextTick(() => {
@@ -771,12 +795,24 @@
           // render flowchart
           document.querySelectorAll(".md-flowchart").forEach((element) => {
             try {
-              let code = element.textContent;
+              let code = element.textContent.slice(-7);
               let flchart = flowchart.parse(code);
               element.textContent = "";
               flchart.drawSVG(element);
             } catch (e) {
               element.outerHTML = `<pre>flowchart complains: ${e}</pre>`;
+            }
+          });
+          //renser geogebra
+          document.querySelectorAll(".ggbid").forEach((element) => {
+            try {
+              let code = element.textContent;
+              let fileName = element.textContent.slice(-7);
+              $vm.$emit('ggb', code, fileName);
+              element.textContent = "";
+              element.outerHTML = `<iframe src="http://127.0.0.1:7000/ggb/` + fileName + `.html" style='width:750px; height:600px; border:0'></iframe>`;
+            } catch (e) {
+              element.outerHTML = `<pre>geogebra complains: ${e}</pre>`;
             }
           });
         });
@@ -794,7 +830,7 @@
         this.timeout = setTimeout(() => {
           this.saveSelectionEndsHistory();
           this.iRender();
-        }, 2000);
+        }, 600);
       },
       //=======================================================================================================================================================================
       // d_render: function () {

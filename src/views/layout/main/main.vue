@@ -161,9 +161,8 @@
             })
         }, 5000);
       },
-
-      ggb: function (value) {
-        let ggbName = "./ggb/ggb.html"
+      ggb: function (value, fileName) {
+        let ggbName = `./ggb/` + fileName + `.html`
         let code = value
         axios.post('/api/ggb', {
           code: code,
@@ -171,12 +170,7 @@
         }
         )
           .then(response => {
-            console.log("/api/ggb:", response.data.status);
-            //     let ggbHtml = `
-            //     <iframe src="http://127.0.0.1:7000/ggb/ggb.html" style='width:750px; height:600px; border:0'>
-            // </iframe>
-            //     `
-            //     this.$store.commit("setGgbHtml",ggbHtml);
+            console.log("/api/ggb--:", response.data.status);
           }).catch(err => {
             console.log(err);
           })
