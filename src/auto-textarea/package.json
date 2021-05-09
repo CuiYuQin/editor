@@ -1,0 +1,60 @@
+{
+  "_args": [
+    [
+      "auto-textarea@1.4.0",
+      "C:\\Users\\cyq\\Desktop\\bs\\editor\\node_modules\\mavon-editor"
+    ]
+  ],
+  "_development": true,
+  "_from": "auto-textarea@1.4.0",
+  "_id": "auto-textarea@1.4.0",
+  "_inBundle": false,
+  "_integrity": "sha1-sIThosw7JZ/v0kZhRoeg+jtZxOY=",
+  "_location": "/auto-textarea",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "auto-textarea@1.4.0",
+    "name": "auto-textarea",
+    "escapedName": "auto-textarea",
+    "rawSpec": "1.4.0",
+    "saveSpec": null,
+    "fetchSpec": "1.4.0"
+  },
+  "_requiredBy": [
+    "#DEV:/"
+  ],
+  "_resolved": "https://registry.npm.taobao.org/auto-textarea/download/auto-textarea-1.4.0.tgz",
+  "_spec": "1.4.0",
+  "_where": "C:\\Users\\cyq\\Desktop\\bs\\editor\\node_modules\\mavon-editor",
+  "author": {
+    "name": "hinesboy"
+  },
+  "bugs": {
+    "url": "https://github.com/hinesboy/auto-textarea/issues"
+  },
+  "dependencies": {
+    "stylus": "^0.54.5",
+    "stylus-loader": "^2.4.0"
+  },
+  "description": "基于Vue的自适应高度的文本输入框",
+  "homepage": "https://github.com/hinesboy/auto-textarea#readme",
+  "keywords": [
+    "vue",
+    "textarea",
+    "javascript",
+    "auto"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "auto-textarea",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hinesboy/auto-textarea.git"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "version": "1.4.0"
+}

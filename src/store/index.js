@@ -5,11 +5,15 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    userName: "starSea",//用户名
+    userName: "",//用户名
+    token:"",
     value: "",//markdown编辑文本
     isShowMain: false,
+    whichPage:"我的文档",
     nodeTree: [],
     nodeList: [],
+    data:[],
+    ggbHtml:"",
 
     vueScrolloOps: {
       vuescroll: {
@@ -53,11 +57,17 @@ export default new Vuex.Store({
 
   },
   mutations: {
+    setToken(state, userName) {
+      state.token = userName;
+    },
     setUserName(state, userName) {
       state.userName = userName;
     },
     setValue(state, value) {
       state.value = value;
+    },
+    setWhichPage(state, whichPage) {
+      state.whichPage = whichPage;
     },
     setIsShowMain(state, isShowMain) {
       state.isShowMain = isShowMain;
@@ -68,8 +78,17 @@ export default new Vuex.Store({
     setNodeList(state, nodeList) {
       state.nodeList = nodeList;
     },
+    setData(state, data) {
+      state.data = data;
+    },
+    spliceNodeList(state,index) {
+      state.nodeList.splice(index,1)
+    },
     setVuescrolloOps(state, vuescrolloOps) {
       state.vuescrolloOps = vuescrolloOps
+    },
+    setGgbHtml(state, value) {
+      state.ggbHtml = value
     }
   },
   actions: {

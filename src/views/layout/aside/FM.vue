@@ -1,10 +1,12 @@
 <template>
   <div class="FM">
     <div class="el-collapse-item">
-      <div class="el-collapse-item-header" :class="[activeName == '1' ? 'isActive':'']" @click="clickCollapseItem1">
-        <div><i class="el-icon-s-management firstIcon"></i>我的文档</div>
+      <div class="el-collapse-item-header" :class="[collapse.activeName == '我的文档' ? 'isActive':'']"
+        @click="clickCollapseItem('我的文档')">
+        <div><i class="el-icon-s-management firstIcon"></i>我的文档</div><i :class="collapse.collapseTreeIcon"
+          style="margin-right: 13px;" @click.stop="handleCollapseTree"></i>
       </div>
-      <div class="el-collapse-item-wrap" :style="{display:isActionisFile}">
+      <div class="el-collapse-item-wrap" :style="{display:!collapse.collapseTree ? '':'none'}">
         <vue-scroll :ops="$store.state.vueScrolloOps">
           <el-tree ref="tree" :props="defaultProps" :data="data" node-key="id" @node-drag-start="handleDragStart"
             :default-expanded-keys="expandedkeys" @node-drag-enter="handleDragEnter" @node-drag-leave="handleDragLeave"
@@ -46,13 +48,13 @@
         </vue-scroll>
       </div>
     </div>
-    <div class="el-collapse-item" @click="clickCollapseItem2">
-      <div class="el-collapse-item-header" :class="[activeName == '2' ? 'isActive':'']">
+    <div class="el-collapse-item" @click="clickCollapseItem('最近编辑')">
+      <div class="el-collapse-item-header" :class="[collapse.activeName == '最近编辑' ? 'isActive':'']">
         <div><i class="el-icon-time firstIcon"></i>最近编辑</div>
       </div>
     </div>
-    <div class="el-collapse-item" @click="clickCollapseItem3">
-      <div class="el-collapse-item-header" :class="[activeName == '3' ? 'isActive':'']">
+    <div class="el-collapse-item" @click="clickCollapseItem('回收站')">
+      <div class="el-collapse-item-header" :class="[collapse.activeName == '回收站' ? 'isActive':'']">
         <div><i class="el-icon-delete-solid firstIcon"></i>回收站</div>
       </div>
     </div>
@@ -103,8 +105,11 @@
     props: {},
     data: function () {
       return {
-        //第一菜单点击的栏
-        activeName: "1",
+        collapse: {
+          activeName: "我的文档",
+          collapseTree: false,
+          collapseTreeIcon: "el-icon-caret-top"
+        },
         //dialog
         dialog: {
           dialogInput: '',// dialog输入文字
@@ -122,12 +127,13 @@
         //文件树数据结构
         data: [],
         object: {
-          // userId:"",
+          // id:"",
           // userName:this.$store.state.userName,
           // tree:this.data,
           // deleteTree:[],
           // createTime:""
         },
+        timeout: null,
         // data: [{
         //   id: 1,
         //   label: '我的文档',
@@ -144,53 +150,26 @@
       };
     },
     computed: {
-      //是否点击我的文档栏，以显示文件树
-      isActionisFile: function () { return this.activeName == '1' ? '' : 'none'; }
     },
     watch: {
       object: {
         handler() {
-          //保存数据
-          axios.post('/api/updatetree', this.object)
-            .then(response => {
-              // this.data = JSON.parse(response.data.object.tree)
-              console.log(response.data.status);
-            }).catch(err => {
-              console.log(err);
-            })
+          clearTimeout(this.timeout);
+          this.timeout = setTimeout(() => {
+            //保存数据
+            axios.post('/api/updatetree', this.object)
+              .then(response => {
+                console.log("/api/updatetree:", response.data.status);
+              }).catch(err => {
+                console.log(err);
+              })
+          }, 2000);
         },
         // immediate: true,
         deep: true
       }
     },
     created: function () {
-
-      //设置数据
-      // axios.post('/api/inserttree', {
-      //   userName: "让我再睡5分钟",
-      //   tree: [{
-      //     id: 1,
-      //     label: '我的文档',
-      //     type: true,
-      //     url: `# markdown`,
-      //     children: []
-      //   }
-      //   ],
-      //   deleteTree:[{
-      //     id: 99,
-      //     label: 'delete',
-      //     type: true,
-      //     url: `# markdown`,
-      //     children: []
-      //   }
-      //   ]
-      // }).then(response => {
-      //   console.log(response);
-      // }).catch(err => {
-      //   console.log(err);
-      // })
-      // .finally(() => console.log("load......"))
-
       //请求数据
       axios.post('/api/gettree', {
         userName: this.$store.state.userName
@@ -198,10 +177,12 @@
         this.object = response.data.object;
         this.object.tree = JSON.parse(response.data.object.tree);
         this.object.deleteTree = JSON.parse(response.data.object.deleteTree);
-        console.log("this.object", this.object);
         this.data = this.object.tree;
         this.$store.commit("setNodeList", this.data);
         this.$store.commit("setIsShowMain", false);
+        this.$store.commit("setData", this.data);
+        console.log("/api/gettree:", response.data.status);
+        // if()
       }).catch(err => {
         console.log(err);
       })
@@ -210,12 +191,42 @@
 
     methods: {
       // 一级菜单
-      clickCollapseItem1() {
-        this.activeName = this.activeName == '1' ? '' : '1';
-        this.clickTitle();
+      clickCollapseItem(value) {
+        switch (value) {
+          case "我的文档":
+            this.collapse.activeName = '我的文档';
+            this.$store.commit("setNodeList", this.data);
+            this.$store.commit("setNodeTree", []);
+            this.$store.commit("setIsShowMain", false);
+            this.$store.commit("setWhichPage", "我的文档");
+            break;
+          case "最近编辑":
+            this.collapse.activeName = '最近编辑';
+            this.$store.commit("setNodeList", this.object.deleteTree);
+            this.$store.commit("setNodeTree", []);
+            this.$store.commit("setIsShowMain", false);
+            this.$store.commit("setWhichPage", "最近编辑");
+            this.$refs.tree.setCurrentKey();
+            break;
+          case "回收站":
+            this.collapse.activeName = '回收站';
+            this.$store.commit("setNodeList", this.object.deleteTree);
+            this.$store.commit("setNodeTree", []);
+            this.$store.commit("setIsShowMain", false);
+            this.$store.commit("setWhichPage", "回收站");
+            this.$refs.tree.setCurrentKey();
+            break;
+        }
       },
-      clickCollapseItem2() { this.activeName = '2'; },
-      clickCollapseItem3() { this.activeName = '3'; },
+      handleCollapseTree() {
+        if (!this.collapse.collapseTree) {
+          this.collapse.collapseTreeIcon = "el-icon-caret-bottom";
+          this.collapse.collapseTree = true;
+          return
+        }
+        this.collapse.collapseTreeIcon = "el-icon-caret-top";
+        this.collapse.collapseTree = false;
+      },
       // 一级菜单
 
 
@@ -225,7 +236,7 @@
       handleDragLeave() { },
       handleDragOver() { },
       handleDragEnd() { },
-      handleDrop() {
+      handleDrop(node) {
         this.$message({
           showClose: true,
           message: '移动成功😊',
@@ -233,40 +244,36 @@
           duration: 1000,
           type: 'success'
         });
+        this.handleNodeClick(node.data);
+
       },
       allowDrop(draggingNode, dropNode, type) {
         if (dropNode.data.type) {
-          // if (type == 'inner') {
-          this.handleNodeClick(dropNode.data);
           return true;
-          // } else {
-          //   return false;
-          // }
         } else {
-          if (type != 'inner') {
-            this.handleNodeClick(draggingNode.data);
-            return true;
+          if (type == 'inner') {
+            return false;
           }
-          return false;
+          return true;
         }
       },
       allowDrag() { return true; },
 
       //点击我是文档标题
-      clickTitle() {
-        this.$store.commit("setNodeList", this.data);
-        this.$store.commit("setNodeTree", []);
-        this.$store.commit("setIsShowMain", false);
+      clickTitle(value) {
+        this.clickCollapseItem(value);
       },
 
-      handleNodeClick(data) {
-
+      handleNodeClick(data, clickNode) {
         let node = this.$refs.tree.getNode(data);
         //要展开的节点，也就是本节点
         this.expandedkeys = [data.id];
-        //设置孩子节点选中
+        //设置节点选中
         this.$refs.tree.setCurrentKey(data.id);
-
+        this.treeData = data;
+        if(!this.treeData.type) {
+          this.setEditorTime();
+        }
         if (data.type) {
           //nodeList
           let nodeList = data.children;
@@ -280,11 +287,37 @@
           }
           this.$store.commit("setNodeTree", nodeTree);
           this.$store.commit("setIsShowMain", false);
+          if (clickNode) {
+            this.collapse.activeName = '我的文档';
+            this.$store.commit("setWhichPage", "我的文档");
+            return
+          }
+          if (this.collapse.activeName == '最近编辑') {
+            // this.clickCollapseItem("最近编辑");
+            return
+          }
+          if (this.collapse.activeName == '回收站') {
+            this.clickCollapseItem("回收站");
+            return
+          }
+          return
+        }
+        this.$store.commit("setIsShowMain", true);
+        this.$store.commit("setValue", data.url);
+        if (clickNode) {
+          this.collapse.activeName = '我的文档';
+          this.$store.commit("setWhichPage", "我的文档");
+          return
+        }
+        if (this.collapse.activeName == '最近编辑') {
+          // this.clickCollapseItem("最近编辑");
+          return
+        }
+        if (this.collapse.activeName == '回收站') {
+          this.clickCollapseItem("回收站");
           return
         }
 
-        this.$store.commit("setIsShowMain", true);
-        this.$store.commit("setValue", data.url);
       },
 
       handleNodeExpand() { },
@@ -293,7 +326,6 @@
       clickNode(id) { this.treeData = this.$refs.tree.getNode(id).data; },
       //处理二级下拉框菜单
       handleCommand(command) {
-        console.log("click :", command)
         switch (command) {
           case '新建文件夹':
             this.dialog.dialogInput = '';
@@ -311,10 +343,45 @@
           case '删除':
             this.dialog.dialogDelete = true;
             break;
+          case '恢复':
+            this.data.push(this.treeData);
+            this.collapse.collapseTreeIcon = "el-icon-caret-top";
+            this.collapse.collapseTree = false;
+            break;
         }
 
       },
       //二级菜单
+      //生成时间
+      CurentTime() {
+        var now = new Date();
+
+        var year = now.getFullYear();//年
+        var month = now.getMonth() + 1;//月
+        var day = now.getDate();//日
+
+        var hh = now.getHours();//时
+        var mm = now.getMinutes();//分
+        var ss = now.getSeconds();//秒
+
+        var clock = year + "-";
+        if (month < 10)
+          clock += "0";
+        clock += month + "-";
+        if (day < 10)
+          clock += "0";
+        clock += day + " ";
+        if (hh < 10)
+          clock += "0";
+        clock += hh + ":";
+        if (mm < 10)
+          clock += '0';
+        clock += mm + ":";
+        if (ss < 10)
+          clock += '0';
+        clock += ss;
+        return (clock);
+      },
 
       //新建文件夹
       addFlod() {
@@ -323,6 +390,8 @@
         //new 一个孩子
         const newChild = {
           id: new Date().getTime(),
+          time: this.CurentTime(),
+          editorTime:new Date().getTime(),
           label: this.dialog.dialogInput,
           type: true,
           url: '# ' + this.dialog.dialogInput,
@@ -333,7 +402,11 @@
           this.$set(this.treeData, 'children', []);
         }
         //把孩子节点加入孩子属性
-        this.treeData.children.push(newChild);
+        if (this.treeData === this.data) {
+          this.treeData.push(newChild);
+        } else {
+          this.treeData.children.push(newChild);
+        }
         this.$nextTick(function () {
           this.handleNodeClick(newChild);
         })
@@ -348,10 +421,13 @@
           content: "## 请仔细阅读帮助文档",
           contentHtml: ""
         }).then(response => {
+          console.log("/api/insertebook:", response.data.status);
           ebookId = response.data.object.ebookId;
           //new 一个孩子
           const newChild = {
             id: new Date().getTime(),
+            time: this.CurentTime(),
+            editorTime:new Date().getTime(),
             label: 'Untitled',
             type: false,
             url: ebookId,
@@ -362,7 +438,11 @@
             this.$set(this.treeData, 'children', []);
           }
           //把孩子节点加入孩子属性
-          this.treeData.children.push(newChild);
+          if (this.treeData === this.data) {
+            this.treeData.push(newChild);
+          } else {
+            this.treeData.children.push(newChild);
+          }
           this.$nextTick(function () {
             this.handleNodeClick(newChild);
           })
@@ -374,37 +454,71 @@
       rename() {
         //关闭dialog
         this.treeData.label = this.dialog.dialogInput;
+        this.treeData.time = this.CurentTime();
+        this.treeData.editorTime = new Date().getTime();
         this.dialog.dialogRename = false;
+        if (!this.treeData.type) {
+          axios.post('/api/updateebooktitle', {
+            title: this.treeData.label,
+            ebookId: this.treeData.url
+          })
+            .then(response => {
+              console.log("/api/updateebooktitle:", response.data.status);
+            }).catch(err => {
+              console.log(err);
+            })
+        }
       },
       //删除
       deleteDialog() {
         let currentData = this.$refs.tree.getCurrentNode();
         let parent = this.$refs.tree.getNode(this.treeData).parent;
         //有选且为选中本节点，就删除后选它的父节点
-        if (currentData && currentData.id == this.treeData.id) {
+        if (currentData && currentData.id == this.treeData.id && parent && parent.id != 0) {
           this.$refs.tree.setCurrentKey(parent.key);
         }
 
         this.$refs.tree.remove(this.treeData);
+        //把该节点加入删除delereTree的头部
+        this.object.deleteTree.unshift(this.treeData);
+
         this.dialog.dialogDelete = false;
 
         this.$nextTick(function () {
           currentData = this.$refs.tree.getCurrentNode();
+          //有选择
           if (currentData) {
             let node = this.$refs.tree.getNode(currentData);
+            //已被删除
             if (!node) {
-              this.handleNodeClick(parent.data);
-              return
+              //有父母
+              if (parent && parent.id != 0) {
+                this.handleNodeClick(parent.data);
+                //无父母
+              } else {
+                this.clickCollapseItem("我的文档");
+              }
+              //无被删除
+            } else {
+              this.handleNodeClick(currentData)
             }
-            this.handleNodeClick(currentData)
-          }
-          if (parent) {
-            this.handleNodeClick(parent.data);
+            //无选择
+          } else {
+            //有父母
+            if (parent && parent.id != 0) {
+              this.handleNodeClick(parent.data);
+              //无父母
+            } else {
+              this.clickCollapseItem("我的文档");
+            }
           }
         })
 
       },
       //dialog
+      setEditorTime() {
+        this.treeData.editorTime = new Date().getTime();
+      }
     },
   };
 </script>
@@ -429,6 +543,8 @@
   .el-collapse-item-header {
     display: flex;
     align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
     height: 48px;
     line-height: 48px;
     color: #C9C9CE;

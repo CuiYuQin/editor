@@ -4,7 +4,7 @@
         <div id="page">
             <vue-scroll :ops="$store.state.vueScrolloOps">
                 <div class="pageHeader">
-                    <div class="title" @click="clickTitle">我的文档</div>
+                    <div class="title" @click="clickTitle(whichPage)">{{whichPage}}</div>
                     <div v-for="(item , index) in nodeTree" :key="item.id" @click="handleClick(item)">
                         <i class="el-icon-arrow-right icon"></i>
                         <span class="title"
@@ -13,14 +13,16 @@
                 </div>
 
                 <div class="pageMain">
-                    <div class="container" v-for="item in nodeList" :key="item.id" @click="handleClick(item)">
+                    <!-- 我的文档 -->
+                    <div v-show="whichPage == '我的文档'" class="container" v-for="item in nodeList" :key="item.id"
+                        @click="handleClick(item)">
                         <div
                             style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;">
                             <i v-if="item.type" class="el-icon-folder foldIconColor"></i>
                             <i v-else class="el-icon-document doculmentIconColor"></i>
                             <div class="textItem">
                                 <div style="font-size: 1.5em;">{{item.label}}</div>
-                                <div style="color: #bababd;">4月25日 00:00</div>
+                                <div style="color: #bababd;">{{item.time}}</div>
                             </div>
                         </div>
 
@@ -30,6 +32,50 @@
                                 <el-dropdown-item icon="el-icon-edit" command="重命名">重命名</el-dropdown-item>
                                 <el-dropdown-item icon="el-icon-star-on" command="添加到快速访问">添加到快速访问</el-dropdown-item>
                                 <el-dropdown-item icon="el-icon-delete" command="删除">删除</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </div>
+
+                    <!-- 最近编辑 -->
+                    <div v-show="whichPage == '最近编辑'" class="container" v-for="item in editorTime" :key="item.id + '1'"
+                        @click="handleClick(item)">
+                        <div
+                            style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                            <i  class="el-icon-document doculmentIconColor"></i>
+                            <div class="textItem">
+                                <div style="font-size: 1.5em;">{{item.label}}</div>
+                                <div style="color: #bababd;">{{item.time}}</div>
+                            </div>
+                        </div>
+
+                        <el-dropdown trigger="click" placement='bottom-start' @command="handleCommand">
+                            <i class="el-icon-more moreIcon" @click.stop="clickNode(item)"></i>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item icon="el-icon-edit" command="重命名">重命名</el-dropdown-item>
+                                <el-dropdown-item icon="el-icon-star-on" command="添加到快速访问">添加到快速访问</el-dropdown-item>
+                                <el-dropdown-item icon="el-icon-delete" command="删除">删除</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </div>
+
+                    <!-- 回收站 -->
+                    <div v-show="whichPage == '回收站'" class="container" v-for="(item, index) in nodeList"
+                        :key="item.id + '2'" @click="handleDeleteClick(item)">
+                        <div
+                            style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                            <i v-if="item.type" class="el-icon-folder foldIconColor"></i>
+                            <i v-else class="el-icon-document doculmentIconColor"></i>
+                            <div class="textItem">
+                                <div style="font-size: 1.5em;">{{item.label}}</div>
+                                <div style="color: #bababd;">{{item.time}}</div>
+                            </div>
+                        </div>
+
+                        <el-dropdown trigger="click" placement='bottom-start' @command="handleCommand">
+                            <i class="el-icon-more moreIcon" @click.stop="clickNode(item, index)"></i>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item icon="el-icon-magic-stick" command="恢复">恢复</el-dropdown-item>
+                                <el-dropdown-item icon="el-icon-delete" command="彻底删除">彻底删除</el-dropdown-item>
                             </el-dropdown-menu>
                         </el-dropdown>
                     </div>
@@ -67,6 +113,7 @@
             return {
                 //第二级点击的文件树菜单栏
                 treeData: {},
+                index: -1,
                 showAsideIcon: "el-icon-arrow-left", //侧边栏显示隐藏图标样式,
             };
         },
@@ -76,16 +123,42 @@
             },
             nodeList() {
                 return this.$store.state.nodeList;
+            },
+            whichPage() {
+                return this.$store.state.whichPage;
+            },
+            editorTime() {
+                let data = this.$store.state.data;
+                let queue = [];
+                let res = [];
+                queue = queue.concat(data);
+                //获取文件夹
+                while (queue.length > 0) {
+                    let node = queue[0];
+                    queue.shift();
+                    if (!node.type) {
+                        res.push(node);
+                    } else {
+                        queue = queue.concat(node.children)
+                    }
+                }
+                //排序
+                if (res.length > 1) {
+                    res.sort(function (a, b) {
+                        return b.editorTime - a.editorTime;
+                    })
+                }
+                return res;
             }
         },
         watch: {
         },
         methods: {
-            clickTitle() {
-                this.$emit("clickTitle");
+            clickTitle(value) {
+                this.$emit("clickTitle", value);
             },
             handleClick(data) {
-                // console.log("data", data)
+                console.log("data", data)
                 this.$emit("handleClick", data);
             },
             handleCommand(command) {
@@ -100,11 +173,28 @@
                     case '删除':
                         this.$emit("handleCommand", '删除', this.treeData)
                         break;
+                    case '恢复':
+                        this.$store.commit("spliceNodeList", this.index);
+                        this.$emit("handleCommand", '恢复', this.treeData)
+                        break;
+                    case '彻底删除':
+                        this.$store.commit("spliceNodeList", this.index);
+                        this.$message({
+                            showClose: true,
+                            message: '已彻底删除 😊',
+                            center: true,
+                            duration: 1500,
+                            type: 'success'
+                        });
+                        break;
                 }
 
             },
             //点击二级菜单
-            clickNode(item) { this.treeData = item },
+            clickNode(item, index) {
+                this.treeData = item;
+                this.index = index;
+            },
             //侧边栏展示显示函数
             changeShowAsideIcon: function () {
                 this.showAsideIcon =
@@ -113,6 +203,15 @@
                         : "el-icon-arrow-left";
                 this.showAside();
             },
+            handleDeleteClick(item) {
+                this.$message({
+                    showClose: true,
+                    message: '需要恢复 ' + item.label + ' 才能查看 😒',
+                    center: true,
+                    duration: 2500,
+                    type: 'warning'
+                });
+            }
         },
     };
 </script>

@@ -7,8 +7,9 @@
     </transition>
     <!-- 主区域容器 -->
 
-      <v-main v-if="isShowMain" :showAside="showAside" @changeNav='changeNav' ref="mainRef"></v-main>
-      <v-page v-else :showAside="showAside" ref="pageRef" @clickTitle="clickTitle" @handleClick="handleClick" @handleCommand="handleCommand"></v-page>
+    <v-main v-show="isShowMain" :showAside="showAside" @changeNav='changeNav' @setEditorTime="setEditorTime" ref="mainRef"></v-main>
+    <v-page v-show="!isShowMain" :showAside="showAside" ref="pageRef" @clickTitle="clickTitle"
+      @handleClick="handleClick" @handleCommand="handleCommand"></v-page>
 
 
   </el-container>
@@ -32,30 +33,42 @@
         ifShowAside: true,
       };
     },
-    computed:{
+    computed: {
       //主区域
-      isShowMain(){
+      isShowMain() {
         return this.$store.state.isShowMain;
       },
+    },
+    created: function () {
+      if (this.$store.state.token == '' || this.$store.state.token != this.$store.state.userName) {
+        this.$router.push({ path: "/login" })
+      }
     },
     methods: {
       //侧边栏展示
       showAside: function () {
         this.ifShowAside = !this.ifShowAside;
       },
-      clickTitle(){
-        this.$refs.asideRef.$refs.FMRef.clickTitle();
+      clickTitle(value) {
+        this.$refs.asideRef.$refs.FMRef.clickTitle(value);
       },
       handleClick(data) {
+        this.$refs.asideRef.$refs.FMRef.treeData = data;
         this.$refs.asideRef.$refs.FMRef.handleNodeClick(data);
       },
-      handleCommand(type,data){
+      handleCommand(type, data) {
         this.$refs.asideRef.$refs.FMRef.treeData = data;
         this.$refs.asideRef.$refs.FMRef.handleCommand(type);
       },
       //
+      //设置最近编辑时间
+      setEditorTime() {
+        this.$refs.asideRef.$refs.FMRef.setEditorTime();
+        console.log("editorTime:",this.$refs.asideRef.$refs.FMRef.treeData)
+      },
       //解析渲染大纲
       changeNav: function ($vm) {
+
         // changeNav: function () {
         let navigationContent;
         navigationContent = this.$refs.asideRef.$refs.navigationContent;

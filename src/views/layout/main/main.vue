@@ -5,7 +5,7 @@
       <!-- 编辑器 -->
       <mavon-editor style="height: 100%" v-model="d_value" :toolbarsBackground="'#23292f'"
         :previewBackground="'#f8f6f1ed'" :subfield="true" :placeholder="'请开始你的创作之旅...'" :toolbars="toolbars"
-        :editorBackground="'#363B40'" @changeNav="changeNav"></mavon-editor>
+        :editorBackground="'#363B40'" @changeNav="changeNav" @change="change" @ggb="ggb"></mavon-editor>
       <!-- 侧边栏收缩按钮 -->
       <div class="footer" style="color: #ffffff">
         <el-tooltip class="item" effect="light" content="隐藏/显示侧边栏" placement="top">
@@ -39,7 +39,9 @@
       return {
         showAsideIcon: "el-icon-arrow-left", //侧边栏显示隐藏图标样式
         d_value: "", //编辑文字
-        object: {},
+        d_render: "",//html
+        timeout: null,
+        object: null,
         //编辑器工具栏
         toolbars: {
           bold: true, // 粗体
@@ -86,35 +88,48 @@
     watch: {
       value: {
         handler(newValue) {
+
+          if (this.object != null) {
+            //切换前保存数据
+            this.object.content = this.d_value;
+            this.object.contentHtml = this.d_render;
+            axios.post('/api/updateebook', this.object)
+              .then(response => {
+                console.log("/api/updateebook:", response.data.status);
+              }).catch(err => {
+                console.log(err);
+              })
+          }
           //请求数据
           axios.post('/api/getebook', {
             ebookId: newValue
           }).then(response => {
-            console.log("response", response);
+            console.log("/api/getebook:", response.data.status);
             this.object = response.data.object;
             this.d_value = this.object.content;
+            this.d_render = this.object.contentHtml;
           }).catch(err => {
             console.log(err);
           })
         },
-        immediate: true,
+        // immediate: true,
         // deep: true
       },
-      d_value: {
-        handler(newValue) {
-          // //保存数据
-          this.object.content = newValue;
-          axios.post('/api/updateebook', this.object)
-            .then(response => {
-              // this.data = JSON.parse(response.data.object.tree)
-              console.log(response.data.status);
-            }).catch(err => {
-              console.log(err);
-            })
-        },
-        // immediate: true,
-        deep: true
-      }
+      // d_value: {
+      //   handler(newValue) {
+      //     clearTimeout(this.timeout);
+      //     this.timeout = setTimeout(() => {
+      //       //保存数据
+      //       this.object.content = newValue;
+      //       axios.post('/api/updateebook', this.object)
+      //         .then(response => {
+      //           console.log(response.data.status);
+      //         }).catch(err => {
+      //           console.log(err);
+      //         })
+      //     }, 5000);
+      //   }
+      // }
     },
     methods: {
       //侧边栏展示显示函数
@@ -125,8 +140,46 @@
             : "el-icon-arrow-left";
         this.showAside();
       },
+      //大纲
       changeNav: function ($vm) {
         this.$emit('changeNav', $vm);
+      },
+      //保存更改
+      change: function (d_value, d_render) {
+        this.d_value = d_value;
+        this.d_render = d_render;
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+          this.object.content = d_value;
+          this.object.contentHtml = d_render;
+          axios.post('/api/updateebook', this.object)
+            .then(response => {
+              console.log("/api/updateebook:", response.data.status);
+              this.$emit("setEditorTime")
+            }).catch(err => {
+              console.log(err);
+            })
+        }, 5000);
+      },
+
+      ggb: function (value) {
+        let ggbName = "./ggb/ggb.html"
+        let code = value
+        axios.post('/api/ggb', {
+          code: code,
+          ggbName: ggbName
+        }
+        )
+          .then(response => {
+            console.log("/api/ggb:", response.data.status);
+            //     let ggbHtml = `
+            //     <iframe src="http://127.0.0.1:7000/ggb/ggb.html" style='width:750px; height:600px; border:0'>
+            // </iframe>
+            //     `
+            //     this.$store.commit("setGgbHtml",ggbHtml);
+          }).catch(err => {
+            console.log(err);
+          })
       },
     },
   };

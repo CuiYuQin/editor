@@ -5,10 +5,23 @@
     <div class="avatarArea">
       <div class="avaterContent">
         <!-- 头像 -->
-        <el-avatar :size="avatarSize" :src="avatarUrl" style="vertical-align: middle"></el-avatar>
+        <el-avatar :size="avatarSize" :src="avatarUrl"></el-avatar>
         <!-- 昵称区域 -->
-        <div class="nickStyle" :class="{ nickClick: ifnickClick }" @click="clickNick">
-          <a>{{ $store.state.userName }}</a> <i class="el-icon-caret-right"></i>
+        <div class="nickStyle">
+          <!-- 昵称 -->
+          <div style="padding: 1px 2px 1px 5px;" :class="{ nickClick: ifnickClick }" @click="clickNick">
+            <a>{{ $store.state.userName }}</a>
+            <i class="el-icon-caret-right"></i>
+          </div>
+          <!-- 新增按钮 -->
+          <el-dropdown trigger="click" placement='bottom-start' @command="handleCommand">
+            <i class="el-icon-circle-plus-outline firstAdd"></i>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-folder foldIconColor " command="新建文件夹">新建文件夹</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-document " command="新建文档">新建文档</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <!-- <i class="el-icon-circle-plus-outline" style="padding: 0px 7px;font-size: 1.85em;"></i> -->
         </div>
       </div>
     </div>
@@ -61,10 +74,30 @@
       //点击昵称
       clickNick: function () {
         this.ifnickClick = !this.ifnickClick;
+        this.$message({
+          showClose: true,
+          message: "正在退出登录",
+          type: "info"
+        })
+        setTimeout(() => {
+          this.$store.commit("setToken", "")
+          this.$router.push({ path: "/login" })
+        }, 1500)
       },
       //标签页切换
       handleClick() {
         // console.log(tab, event);
+      },
+      handleCommand(command) {
+        this.$refs.FMRef.treeData = this.$refs.FMRef.data;
+        switch (command) {
+          case '新建文件夹':
+            this.$refs.FMRef.handleCommand('新建文件夹');
+            break;
+          case '新建文档':
+            this.$refs.FMRef.handleCommand('新建文档');
+            break;
+        }
       },
     },
   };
@@ -91,20 +124,24 @@
   }
 
   .avaterContent {
-    position: relative;
-    top: 10px;
-    left: 32px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 15px 20px 0px 20px;
+    justify-content: space-between;
   }
 
   /* 昵称区域 */
   .nickStyle {
-    /* position: absolute; */
+    position: relative;
+    width: 80%;
     font-size: 1.3em;
     font-weight: bold;
-    display: inline-block;
-    margin: 6px 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     cursor: pointer;
-    padding: 1px 5px 1px 6px;
     color: rgb(236, 229, 229);
   }
 
@@ -113,6 +150,37 @@
     background-color: #49494e;
     border-radius: 4px;
   }
+
+  .firstAdd {
+    font-size: 2.5em;
+    color: #C9C9CE;
+  }
+
+  .firstAdd:hover {
+    color: #5856D5;
+  }
+
+  /deep/ .foldIconColor {
+    color: #774747;
+  }
+
+  /deep/ .el-dropdown-menu__item {
+    list-style: none;
+    line-height: 36px;
+    padding: 0 20px;
+    margin: 0;
+    font-size: 14px;
+    color: #EAEAEB;
+    cursor: pointer;
+    outline: 0;
+  }
+
+  /deep/ .el-dropdown-menu__item:focus,
+  .el-dropdown-menu__item:not(.is-disabled):hover {
+    background-color: #606067;
+    color: #EAEAEB;
+  }
+
 
   /* 可以设置不同的进入和离开动画 */
   /* 设置持续时间和动画函数 */

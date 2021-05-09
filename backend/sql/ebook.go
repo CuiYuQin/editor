@@ -69,3 +69,21 @@ func UpdateEbook(requestData map[string]interface{}, responseData *common.Respon
 	responseData.Message = "成功更改"
 	responseData.Status = 200
 }
+
+func UpdateEbookTitle(requestData map[string]interface{}, responseData *common.ResponseData) {
+
+	res, err := db.Exec("update ebook set title = ? where ebookId = ?",
+		requestData["title"], requestData["ebookId"])
+	common.CheckError(err)
+
+	//影响行数
+	rowsaffected, err := res.RowsAffected()
+	common.CheckError(err)
+	fmt.Println("RowsAffected:", rowsaffected)
+
+	responseData.Object = requestData
+	responseData.Message = "成功更改"
+	responseData.Status = 200
+}
+
+

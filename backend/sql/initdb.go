@@ -16,7 +16,7 @@ const (
 	port     = 3306
 	user     = "root"
 	password = "123456"
-	dbname   = "editor"
+	dbname   = "ebook"
 )
 
 //初始化连接数据库
@@ -28,7 +28,7 @@ func Initdb() (err error) {
 	if err != nil {
 		return err
 	}
-	// 尝试与数据库建立连接（校验dsn是否正确）
+	// 尝试与数据库建立连接（校验是否正确）
 	err = db.Ping()
 	if err != nil {
 		return err

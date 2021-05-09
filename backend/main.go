@@ -18,6 +18,8 @@ func main() {
 
 	mux := http.NewServeMux()
 	//路由
+	//login
+	mux.HandleFunc("/login", controllers.Login)
 	//tree // user
 	mux.HandleFunc("/gettree", controllers.GetTree)
 	mux.HandleFunc("/inserttree", controllers.InsertTree)
@@ -26,6 +28,11 @@ func main() {
 	mux.HandleFunc("/getebook", controllers.GetEbook)
 	mux.HandleFunc("/insertebook", controllers.InsertEbook)
 	mux.HandleFunc("/updateebook", controllers.UpdateEbook)
+	mux.HandleFunc("/updateebooktitle", controllers.UpdateEbookTitle)
+
+	//ggb
+	mux.HandleFunc("/ggb", controllers.Ggb)
+	mux.Handle("/", http.FileServer(http.Dir("./")))
 
 	//端口
 	fmt.Println("Web服务器启动...端口:7000")
