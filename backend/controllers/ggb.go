@@ -46,14 +46,14 @@ func Ggb(w http.ResponseWriter, r *http.Request) {
 		var ggb = document.getElementById("ggbid").innerText;
 		document.getElementById("ggbid").style.display = "none";
 		var parameters = {
-			width: 850,
-			height: 420,
+			width: 750,
+			height: 400,
 			enableRightClick: false,
-			showToolBar: true,
-			showAlgebraInput: true,
-			showMenuBar: true,
-			showToolBar: true,
+			showToolBar: false,
+			showMenuBar: false,
+			showToolBar: false,
 			borderColor: "white",
+			"language":"en",
 			ggbBase64: ggb,
 		};
 		var applet = new GGBApplet(parameters, "5.0");

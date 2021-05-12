@@ -62,7 +62,7 @@
           fullscreen: false, // 全屏编辑
           readmodel: true, // 沉浸式阅读
           htmlcode: true, // 展示html源码
-          help: false, // 帮助
+          help: true, // 帮助
           /* 1.3.5 */
           undo: true, // 上一步
           redo: true, // 下一步
@@ -169,9 +169,10 @@
           ggbName: ggbName
         }
         )
-          .then(response => {
-            console.log("/api/ggb--:", response.data.status);
-          }).catch(err => {
+          // .then(response => {
+          //   console.log(":", response.data.status);
+          // })
+          .catch(err => {
             console.log(err);
           })
       },

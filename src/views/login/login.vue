@@ -9,7 +9,7 @@
       <div class="loginBox">
         <div class="loginCon">
           <div>
-            <p class="title">基于Web的交互电子书的内容生成</p>
+            <p class="title">基于Web的交互电子书内容生成系统</p>
             <p class="content">内容生成器本质上是一个在线编辑器，除了可以进行常规的文档编辑，还提供了基于markdown语法的写作编辑。
               这个系统将教师和学生编辑的内容多姿多彩地展现，可以大大激发创造热情，丰富平台教学资源内容。</p>
           </div>
