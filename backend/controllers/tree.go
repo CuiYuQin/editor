@@ -37,6 +37,7 @@ func InsertTree(w http.ResponseWriter, r *http.Request) {
 
 	//返回的数据体
 	responseData := common.ResponseData{}
+	//数据库操作
 	sql.InsertTree(requestData, &responseData)
 	res, _ := json.Marshal(responseData)
 	w.Write(res)

@@ -95,9 +95,7 @@
                     (vShowContent.children[i].offsetTop *
                       vNoteEdit.scrollHeight) /
                     vShowContent.scrollHeight;
-                } else {
-                  // todo 编辑
-                }
+                } 
               } else {
                 // 单栏
                 if ($vm.s_preview_switch) {
