@@ -81,7 +81,7 @@
         })
         setTimeout(() => {
           this.$store.commit("setToken", "")
-          this.$router.push({ path: "/login" })
+          this.$router.push({ path: "/" })
         }, 1500)
       },
       //标签页切换

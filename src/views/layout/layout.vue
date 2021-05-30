@@ -41,7 +41,7 @@
     },
     created: function () {
       if (this.$store.state.token == '' || this.$store.state.token != this.$store.state.userName) {
-        this.$router.push({ path: "/login" })
+        this.$router.push({ path: "/" })
       }
     },
     methods: {

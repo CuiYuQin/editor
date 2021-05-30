@@ -128,21 +128,26 @@
                 return this.$store.state.whichPage;
             },
             editorTime() {
-                let data = this.$store.state.data;
-                let queue = [];
-                let res = [];
-                queue = queue.concat(data);
-                //获取文件夹
+                let data = this.$store.state.data;//获取根节点
+                let queue = [];                   //队列，用于层级遍历时，缓存还需要层级遍历的节点
+                let res = [];                     //返回的数组，就是文档节点数组
+                //队列尾部拼接根节点，目前有一个节点
+                queue = queue.concat(data);       
+                //当队列有节点，就要继续层级遍历
                 while (queue.length > 0) {
-                    let node = queue[0];
-                    queue.shift();
-                    if (!node.type) {
+                    let node = queue[0]; //获取队列的数组头部节点
+                    //移除队列的数组头部节点
+                    queue.shift();    
+                    //判断节点的类型 
+                    if (!node.type) {  
+                        //是文档就尾部加入返回数组  
                         res.push(node);
+                    //是文件夹，就尾部加入孩子节点
                     } else {
                         queue = queue.concat(node.children)
                     }
                 }
-                //排序
+                //对文档节点按照编辑时间戳从大到小排序
                 if (res.length > 1) {
                     res.sort(function (a, b) {
                         return b.editorTime - a.editorTime;

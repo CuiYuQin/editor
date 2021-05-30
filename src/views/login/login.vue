@@ -164,17 +164,19 @@
               userName: that.loginForm.userName,
               PassWord: that.loginForm.PassWord,
               types: 1,
+              //对象数组文件树
               tree: [
                 {
-                  id: new Date().getTime(),
-                  time: this.CurentTime(),
-                  editorTime: new Date().getTime(),
-                  label: "文件夹",
-                  type: true,
-                  url: '# 文件夹',
-                  children: []
+                  id: new Date().getTime(), //用于标识节点,为时间戳
+                  time: this.CurentTime(),  //用于展示的最近编辑时间字符串
+                  editorTime: new Date().getTime(), //最近编辑时间
+                  label: "文件夹",          //节点名
+                  type: true,              //节点类型，true为文件夹，false为文档
+                  url: '# 文件夹',         //如果为文档，指向文档的id
+                  children: []            //孩子对象数组
                 }
               ],
+              //对象数组删除文件树
               deleteTree: []
             }).then(res => {
               console.log("/api/inserttree:", res.data.status);
